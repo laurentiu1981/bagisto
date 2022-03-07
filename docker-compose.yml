@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+
+  web_server:
+    image: webkul/apache-php:latest
+    container_name: apache2
+    restart: always
+    volumes:
+      - ./app:/var/www/html
+    working_dir: /var/www/html/
+    environment:
+      USER_UID: '1001'
+    networks:
+      - bagisto-network
+    ports:
+      - '8050:80'
+    expose:
+      - '80'
+    depends_on:
+      - database_server
+    links:
+      - database_server
+
+  database_server:
+    image: mysql:5.7
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'bagisto'
+      MYSQL_USER: 'bagisto_user'
+      MYSQL_PASSWORD: 'bagisto_pass'
+      MYSQL_ROOT_PASSWORD: 'bagisto_pass'
+      MYSQL_ROOT_HOST: '%'
+    networks:
+      - bagisto-network
+    ports:
+      - '32060:3306'
+    expose:
+      - '3306'
+    volumes:
+      - ./dbvolume:/var/lib/mysql
+
+volumes:
+  dbvolume:
+  app:
+
+networks:
+  bagisto-network:
